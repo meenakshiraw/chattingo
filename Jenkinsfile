@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         TRIVY_CACHE = "${WORKSPACE}/.trivycache"
-        DOCKER_IMAGE = "backend-image:latest"
+        DOCKER_HUB_REPO = "docker_id/chattingo" // Docker Hub repo
+        DOCKER_HUB_CREDENTIALS = "docker_id"    // Jenkins credential ID
     }
 
     stages {
@@ -14,41 +15,56 @@ pipeline {
             }
         }
 
-        stage('Image Build') { 
+        stage('Build Docker Images') {
             steps {
-                echo "Building Docker images..."
-                sh 'docker build -t backend-image:latest ./backend'
-                sh 'docker build -t frontend-image:latest ./frontend'
-            }       
-        }
+                echo 'Building Docker images...'
+                script {
+                    // Use branch name or commit hash for dynamic tags
+                    def branchTag = env.BRANCH_NAME.replaceAll('/', '-')
+                    def commitTag = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
 
-        stage('Filesystem Scan') {
-            steps {
-                echo 'Scanning source code for vulnerabilities...'
-                sh '''
-                    mkdir -p "$TRIVY_CACHE"
+                    env.BACKEND_IMAGE_TAG = "${DOCKER_HUB_REPO}:backend-${branchTag}-${commitTag}"
+                    env.FRONTEND_IMAGE_TAG = "${DOCKER_HUB_REPO}:frontend-${branchTag}-${commitTag}"
 
-                    # Run filesystem scan, do not fail pipeline
-                    trivy fs --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" . || true
-                '''
-            }
-            post {
-                always {
-                    echo 'Cleaning Trivy cache...'
-                    sh "rm -rf ${TRIVY_CACHE}"
+                    sh "docker build -t ${env.BACKEND_IMAGE_TAG} ./backend"
+                    sh "docker build -t ${env.FRONTEND_IMAGE_TAG} ./frontend"
                 }
             }
         }
 
-        stage('Docker Image Scan') {
+        stage('Push to Docker Hub') {
+          steps {
+             script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                        sh "docker tag ${DOCKER_IMAGE_BACKEND} ${DOCKER_HUB_REPO}:backend-latest"
+                        sh "docker tag ${DOCKER_IMAGE_FRONTEND} ${DOCKER_HUB_REPO}:frontend-latest"
+
+                        sh "docker push ${DOCKER_HUB_REPO}:backend-latest"
+                        sh "docker push ${DOCKER_HUB_REPO}:frontend-latest"
+                    }
+                }
+            }
+
+        }
+
+        stage('Trivy Filesystem Scan') {
             steps {
-                echo 'Scanning Docker image for vulnerabilities...'
+                echo 'Scanning source code for vulnerabilities...'
                 sh '''
                     mkdir -p "$TRIVY_CACHE"
-
-                    # Scan Docker image, do not fail pipeline
-                    trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${DOCKER_IMAGE} || true
+                    trivy fs --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" . || true
                 '''
+            }
+        }
+
+        stage('Trivy Docker Image Scan') {
+            steps {
+                echo 'Scanning Docker images for vulnerabilities...'
+                sh """
+                    mkdir -p "$TRIVY_CACHE"
+                    trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${env.BACKEND_IMAGE_TAG} || true
+                    trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${env.FRONTEND_IMAGE_TAG} || true
+                """
             }
         }
     }
