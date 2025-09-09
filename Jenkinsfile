@@ -62,6 +62,24 @@
                 }
             }
         }
+
+
+
+     stage('Update Compose') {
+    steps {
+        echo "Updating docker-compose.yml with new image tags..."
+
+        // Replace backend and frontend image tags in docker-compose.yml
+        sh '''
+        sed -i "s|image: .*backend.*|image: docker_id/chattingo:backend-latest|g" docker-compose.yml
+        sed -i "s|image: .*frontend.*|image: docker_id/chattingo:frontend-latest|g" docker-compose.yml
+        '''
+
+        // Optional: show updated docker-compose.yml in logs
+        sh 'cat docker-compose.yml'
+    }
+}
+
     }
 
     post {
