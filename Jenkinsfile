@@ -79,10 +79,14 @@
                     sed -i 's|chattingo-backend:.*|chattingo-backend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
                     cat docker-compose.yaml
                     """
+                    
+                # Make sure docker-compose is executable
+                    sh "chmod +x /usr/local/bin/docker-compose"
 
-                  // Build and run containers using Docker Compose V2
-                    sh "docker compose build"
-                    sh "docker compose up -d"
+                # Run docker-compose up with build
+                    sh "/usr/local/bin/docker-compose -f docker-compose.yml up --build -d"
+
+                  
 
                 
             }
