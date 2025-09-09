@@ -48,9 +48,13 @@ pipeline {
             steps {
                 echo 'Pushing Docker images to Docker Hub...'
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
-                        sh "docker push ${env.BACKEND_IMAGE_TAG}"
-                        sh "docker push ${env.FRONTEND_IMAGE_TAG}"
+                   docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                        sh "docker tag ${params.BACKEND_IMAGE_TAG} ${DOCKER_HUB_REPO}:backend-latest"
+                        sh "docker tag ${params.FRONTEND_IMAGE_TAG} ${DOCKER_HUB_REPO}:frontend-latest"
+
+                        sh "docker push ${DOCKER_HUB_REPO}:backend-latest"
+                        sh "docker push ${DOCKER_HUB_REPO}:frontend-latest"
+                    
                     }
                 }
             }
