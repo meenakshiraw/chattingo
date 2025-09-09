@@ -48,7 +48,7 @@
             steps {
                 echo 'Pushing Docker images to Docker Hub...'
                 script {
-                   docker.withRegistry(credentialsId: 'docker-id', toolName: 'docker') {
+                   docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
                       // Use the image names from the build stage
                      sh "docker tag backend-image:latest  meenakshirawat/chattingo:backend-latest"
                      sh "docker tag frontend-image:latest  meenakshirawat/chattingo:frontend-latest"
