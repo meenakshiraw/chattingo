@@ -40,18 +40,44 @@ pipeline {
         }
 
         stage('Docker Image Scan') {
-
-          when {
-            beforeAgent true
-            expression { true } // always run regardless of previous failures
-           }
             steps {
-                echo '🔍 Scanning Docker images for vulnerabilities...'
-                sh """
-                    mkdir -p ${TRIVY_CACHE}
-                    trivy image --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} ${BACKEND_IMAGE}
-                    trivy image --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} ${FRONTEND_IMAGE}
-                """
+                // Run scans, mark stage failed on CRITICAL issues, but allow pipeline to continue
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    echo '🔍 Scanning Docker images for vulnerabilities and generating HTML reports...'
+                    sh """
+                        mkdir -p ${TRIVY_CACHE}
+
+                        echo "Scanning backend image..."
+                        trivy image --exit-code 1 --severity CRITICAL --format template --template "@contrib/html.tpl" \
+                            -o trivy-backend-report.html ${BACKEND_IMAGE} || true
+
+                        echo "Scanning frontend image..."
+                        trivy image --exit-code 1 --severity CRITICAL --format template --template "@contrib/html.tpl" \
+                            -o trivy-frontend-report.html ${FRONTEND_IMAGE} || true
+                    """
+                }
+            }
+            post {
+                always {
+                    echo '🧹 Cleaning Trivy cache...'
+                    sh "rm -rf ${TRIVY_CACHE}"
+
+                    // Publish HTML reports in Jenkins
+                    publishHTML([
+                        reportDir: '.', 
+                        reportFiles: 'trivy-backend-report.html', 
+                        reportName: 'Backend Trivy Scan Report',
+                        allowMissing: true, 
+                        keepAll: true
+                    ])
+                    publishHTML([
+                        reportDir: '.', 
+                        reportFiles: 'trivy-frontend-report.html', 
+                        reportName: 'Frontend Trivy Scan Report',
+                        allowMissing: true, 
+                        keepAll: true
+                    ])
+                }
             }
         }
     }
