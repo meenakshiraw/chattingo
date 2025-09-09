@@ -32,21 +32,6 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
-          steps {
-             script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
-                        sh "docker tag ${DOCKER_IMAGE_BACKEND} ${DOCKER_HUB_REPO}:backend-latest"
-                        sh "docker tag ${DOCKER_IMAGE_FRONTEND} ${DOCKER_HUB_REPO}:frontend-latest"
-
-                        sh "docker push ${DOCKER_HUB_REPO}:backend-latest"
-                        sh "docker push ${DOCKER_HUB_REPO}:frontend-latest"
-                    }
-                }
-            }
-
-        }
-
         stage('Trivy Filesystem Scan') {
             steps {
                 echo 'Scanning source code for vulnerabilities...'
@@ -65,6 +50,18 @@ pipeline {
                     trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${env.BACKEND_IMAGE_TAG} || true
                     trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${env.FRONTEND_IMAGE_TAG} || true
                 """
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                echo 'Pushing Docker images to Docker Hub...'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                        sh "docker push ${env.BACKEND_IMAGE_TAG}"
+                        sh "docker push ${env.FRONTEND_IMAGE_TAG}"
+                    }
+                }
             }
         }
     }
