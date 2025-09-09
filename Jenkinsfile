@@ -80,8 +80,9 @@
                     cat docker-compose.yaml
                     """
 
-                    // Build and run containers
-                    sh "docker compose up --build -d"
+                  // Build and run containers using Docker Compose V2
+                    sh "docker compose build"
+                    sh "docker compose up -d"
 
                 
             }
