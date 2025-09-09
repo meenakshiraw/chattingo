@@ -66,7 +66,6 @@
 
 
 
-     stages {
         stage('Build & Deploy with Tagged Images') {
             steps {
                 script {
@@ -83,7 +82,7 @@
 
                     // Build and run containers
                     sh "docker-compose up --build -d"
-                }
+                
             }
         }
     }
