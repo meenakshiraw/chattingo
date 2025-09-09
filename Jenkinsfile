@@ -1,4 +1,4 @@
-pipeline {
+ pipeline {
     agent any
 
     environment {
@@ -50,11 +50,11 @@ pipeline {
                 script {
                    docker.withRegistry(credentialsId: 'docker-id', toolName: 'docker') {
                       // Use the image names from the build stage
-                   sh "docker tag backend-image:latest  meenakshirawat/chattingo:backend-latest"
-                   sh "docker tag frontend-image:latest  meenakshirawat/chattingo:frontend-latest"
+                     sh "docker tag backend-image:latest  meenakshirawat/chattingo:backend-latest"
+                     sh "docker tag frontend-image:latest  meenakshirawat/chattingo:frontend-latest"
 
-                   sh "docker push   meenakshirawat/chattingo:backend-latest"
-                   sh "docker push "meenakshirawat/chattingo:frontend-latest"
+                     sh "docker push   meenakshirawat/chattingo:backend-latest"
+                     sh "docker push "meenakshirawat/chattingo:frontend-latest"
                     
 
                     
