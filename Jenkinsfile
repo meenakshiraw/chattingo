@@ -5,6 +5,7 @@
         TRIVY_CACHE = "${WORKSPACE}/.trivycache"
         DOCKER_HUB_REPO = "docker_id/chattingo" // Docker Hub repo
         DOCKER_HUB_CREDENTIALS = "docker_id"    // Jenkins credential ID
+        IMAGE_TAG="build-${BUILD_NUMBER}"
     }
 
     stages {
@@ -65,20 +66,27 @@
 
 
 
-     stage('Update Compose') {
-    steps {
-        echo "Updating docker-compose.yml with new image tags..."
+     stages {
+        stage('Build & Deploy with Tagged Images') {
+            steps {
+                script {
+                    // Set tag using Jenkins build number
+                    def IMAGE_TAG = "build-${env.BUILD_NUMBER}"
+                    echo "Using image tag: ${IMAGE_TAG}"
 
-        // Replace backend and frontend image tags in docker-compose.yml
-        sh '''
-        sed -i "s|image: .*backend.*|image: docker_id/chattingo:backend-latest|g" docker-compose.yml
-        sed -i "s|image: .*frontend.*|image: docker_id/chattingo:frontend-latest|g" docker-compose.yml
-        '''
+                    // Update docker-compose.yml with new image tag
+                    sh """
+                    sed -i 's|chattingo-frontend:.*|chattingo-frontend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
+                    sed -i 's|chattingo-backend:.*|chattingo-backend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
+                    cat docker-compose.yml
+                    """
 
-        // Optional: show updated docker-compose.yml in logs
-        sh 'cat docker-compose.yml'
+                    // Build and run containers
+                    sh "docker-compose up --build -d"
+                }
+            }
+        }
     }
-}
 
     }
 
