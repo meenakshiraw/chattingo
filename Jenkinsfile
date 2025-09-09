@@ -16,7 +16,7 @@
                     url: 'https://github.com/meenakshiraw/chattingo.git'
         }
 
-
+       }
         stage('Image Build') { 
             steps {
                 echo "Building Docker images..."
