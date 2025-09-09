@@ -13,10 +13,11 @@
        
        stage('Checkout') {
 
+            
             steps {
-           checkout scm
-            }
-            steps {
+
+                // Option 1: checkout from the repo that triggered the pipeline
+                checkout scm
                 // This pulls code from your GitHub repo into Jenkins workspace
                 git branch: 'meenakshi',
                     url: 'https://github.com/meenakshiraw/chattingo.git'
