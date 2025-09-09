@@ -73,46 +73,10 @@
 
 
 
-        stage('Build & Deploy with Tagged Images') {
-            steps {
-                script {
-                    // Set tag using Jenkins build number
-                    def IMAGE_TAG = "build-${env.BUILD_NUMBER}"
-                    echo "Using image tag: ${IMAGE_TAG}"
-
-                    // Update docker-compose.yml with new image tag
-                    sh """
-                    sed -i 's|chattingo-frontend:.*|chattingo-frontend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
-                    sed -i 's|chattingo-backend:.*|chattingo-backend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
-                    cat docker-compose.yaml
-                    """
-                    
-                //Make sure docker-compose is executable
-                   // sh "chmod +x /usr/local/bin/docker-compose"
-
-                //Run docker-compose up with build
-                    //sh "/usr/local/bin/docker-compose -f docker-compose.yaml up --build -d"
-
-           }
-        }
-    }
+       
 
 
-
-      stage('Deploy') {
-            steps {
-              sshagent(['jenkins-vps-ssh-key-id']) {
-                sh """
-                    
-                        ssh -o StrictHostKeyChecking=no vpsuser@meenakshirawat.net '
-                            cd /path/to/app &&
-                            git pull &&
-                            //docker-compose up -d --build
-                        '
-                   """
-        }
-    }
-}
+   
     }
 
     post {
