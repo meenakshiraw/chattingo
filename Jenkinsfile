@@ -25,18 +25,15 @@ pipeline {
 
         stage('Filesystem Scan') {
             steps {
-                echo 'Scanning source code for vulnerabilities...'
+                echo '🔍 Scanning source code for vulnerabilities...'
                 sh """
-                mkdir -p ${TRIVY_CACHE}
-                docker run --rm \
-                    -v $PWD:/app \
-                    -v ${TRIVY_CACHE}:/root/.cache/ \
-                    aquasec/trivy fs --exit-code 1 --severity HIGH,CRITICAL /app
+                    mkdir -p ${TRIVY_CACHE}
+                    trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} .
                 """
             }
             post {
                 always {
-                    echo 'Cleaning Trivy cache...'
+                    echo '🧹 Cleaning Trivy cache...'
                     sh "rm -rf ${TRIVY_CACHE}"
                 }
             }
@@ -44,11 +41,11 @@ pipeline {
 
         stage('Docker Image Scan') {
             steps {
-                echo 'Scanning Docker images for vulnerabilities...'
+                echo '🔍 Scanning Docker images for vulnerabilities...'
                 sh """
-                mkdir -p ${TRIVY_CACHE}
-                docker run --rm -v ${TRIVY_CACHE}:/root/.cache/ aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL ${BACKEND_IMAGE} || true
-                docker run --rm -v ${TRIVY_CACHE}:/root/.cache/ aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL ${FRONTEND_IMAGE} || true
+                    mkdir -p ${TRIVY_CACHE}
+                    trivy image --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} ${BACKEND_IMAGE}
+                    trivy image --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} ${FRONTEND_IMAGE}
                 """
             }
         }
@@ -60,10 +57,10 @@ pipeline {
             deleteDir()
         }
         failure {
-            echo 'Pipeline failed due to build or security scan errors.'
+            echo '❌ Pipeline failed due to build or security scan errors.'
         }
         success {
-            echo 'Pipeline completed successfully.'
+            echo '✅ Pipeline completed successfully.'
         }
     }
 }
