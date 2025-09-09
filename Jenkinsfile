@@ -54,7 +54,7 @@
                      sh "docker tag frontend-image:latest  meenakshirawat/chattingo:frontend-latest"
 
                      sh "docker push   meenakshirawat/chattingo:backend-latest"
-                     sh "docker push "meenakshirawat/chattingo:frontend-latest"
+                     sh "docker push   meenakshirawat/chattingo:frontend-latest"
                     
 
                     
