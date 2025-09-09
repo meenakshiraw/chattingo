@@ -45,6 +45,7 @@ pipeline {
                 trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} .
                 '''
             }
+        }
                 
         stage('Image Scan') {
             steps {
