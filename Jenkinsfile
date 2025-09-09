@@ -31,7 +31,7 @@ pipeline {
                 // Build frontend image
                 sh 'docker build -t frontend-image:latest ./frontend'
             }     
-
+        }
         stage('Filesystem Scan') {
             steps {
                 echo "Scanning source code for vulnerabilities..."
