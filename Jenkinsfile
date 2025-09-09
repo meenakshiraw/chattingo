@@ -32,11 +32,11 @@ pipeline {
                 sh 'docker build -t frontend-image:latest ./frontend'
             }     
 
-        stage('Filesystem Scan') {
+                stage('Filesystem Scan') {
             steps {
                 echo "Scanning source code for vulnerabilities..."
                 sh '''
-                # Install Trivy if not already installed
+                # Install Trivy if not installed
                 if ! command -v trivy &> /dev/null; then
                     curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
                 fi
@@ -46,15 +46,27 @@ pipeline {
                 '''
             }
         }
-                
+
         stage('Image Scan') {
             steps {
-                echo "Scanning Docker image for vulnerabilities..."
-                sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL backend-image:latest'
+                echo "Scanning Docker images for vulnerabilities..."
+                sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${DOCKER_IMAGE_BACKEND}"
+                sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${DOCKER_IMAGE_FRONTEND}"
             }
         }
 
-                
+    }
+
+    post {
+        always {
+            echo "Cleaning Trivy cache..."
+            sh "rm -rf ${TRIVY_CACHE}"
+        }
+        success {
+            echo "Pipeline completed successfully!"
+        }
+        failure {
+            echo "Pipeline failed due to build or security scan errors."
         }
     }
 }
