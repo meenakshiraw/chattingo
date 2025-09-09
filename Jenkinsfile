@@ -48,14 +48,15 @@ pipeline {
             steps {
                 echo 'Pushing Docker images to Docker Hub...'
                 script {
-                    withDockerRegistry([credentialsId: 'docker-id', url: 'https://index.docker.io/v1/']) {
-                        echo "Tagging and pushing backend image..."
-                        sh "docker tag backend-image:latest ${DOCKER_HUB_REPO}:backend-latest"
-                        sh "docker push ${DOCKER_HUB_REPO}:backend-latest"
+                   docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                      // Use the image names from the build stage
+                   sh "docker tag backend-image:latest ${DOCKER_HUB_REPO}:backend-latest"
+                   sh "docker tag frontend-image:latest ${DOCKER_HUB_REPO}:frontend-latest"
 
-                        echo "Tagging and pushing frontend image..."
-                        sh "docker tag frontend-image:latest ${DOCKER_HUB_REPO}:frontend-latest"
-                        sh "docker push ${DOCKER_HUB_REPO}:frontend-latest"
+                  sh "docker push ${DOCKER_HUB_REPO}:backend-latest"
+                  sh "docker push ${DOCKER_HUB_REPO}:frontend-latest"
+                    
+
                     
                     }
                 }
