@@ -27,7 +27,11 @@ pipeline {
             steps {
                 echo 'Scanning source code for vulnerabilities...'
                 sh """
-                trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} .
+                mkdir -p ${TRIVY_CACHE}
+                docker run --rm \
+                    -v $PWD:/app \
+                    -v ${TRIVY_CACHE}:/root/.cache/ \
+                    aquasec/trivy fs --exit-code 1 --severity HIGH,CRITICAL /app
                 """
             }
             post {
@@ -42,8 +46,9 @@ pipeline {
             steps {
                 echo 'Scanning Docker images for vulnerabilities...'
                 sh """
-                trivy image --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} ${BACKEND_IMAGE} || true
-                trivy image --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} ${FRONTEND_IMAGE} || true
+                mkdir -p ${TRIVY_CACHE}
+                docker run --rm -v ${TRIVY_CACHE}:/root/.cache/ aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL ${BACKEND_IMAGE} || true
+                docker run --rm -v ${TRIVY_CACHE}:/root/.cache/ aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL ${FRONTEND_IMAGE} || true
                 """
             }
         }
