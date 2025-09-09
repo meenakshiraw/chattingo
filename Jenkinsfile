@@ -84,7 +84,7 @@
                    // sh "chmod +x /usr/local/bin/docker-compose"
 
                 //Run docker-compose up with build
-                    sh "/usr/local/bin/docker-compose -f docker-compose.yml up --build -d"
+                    sh "/usr/local/bin/docker-compose -f docker-compose.yaml up --build -d"
 
                   
 
