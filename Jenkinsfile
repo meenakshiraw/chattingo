@@ -93,10 +93,13 @@
                 //Run docker-compose up with build
                     sh "/usr/local/bin/docker-compose -f docker-compose.yaml up --build -d"
 
+           }
+        }
+    }
 
 
 
-        stage('Deploy') {
+      stage('Deploy') {
             steps {
               sshagent(['jenkins-vps-ssh-key-id']) {
                 sh """
@@ -110,13 +113,6 @@
         }
     }
 }
-    
-
-                
-            }
-        }
-    }
-
     }
 
     post {
