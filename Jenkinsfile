@@ -42,6 +42,7 @@ pipeline {
                 fi
 
                 # Run source code scan with caching
+                export PATH=$PATH:$WORKSPACE/bin
                 trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} .
                 '''
             }
