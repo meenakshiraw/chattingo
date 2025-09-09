@@ -40,6 +40,11 @@ pipeline {
         }
 
         stage('Docker Image Scan') {
+
+          when {
+             beforeAgent true
+             expression { true } // always run even if previous stages failed
+           }
             steps {
                 // Run scans, mark stage failed on CRITICAL issues, but allow pipeline to continue
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
