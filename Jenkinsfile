@@ -100,7 +100,10 @@
             steps {
               sshagent(['jenkins-vps-ssh-key-id']) {
                 sh """
-                ssh -o StrictHostKeyChecking=no user@hostinger 'cd /path/to/app && git pull && docker-compose up -d --build'
+                  ssh -o StrictHostKeyChecking=no user@hostinger "
+                  cd /path/to/app &&
+                  git pull &&
+                  docker-compose up -d --build
                 """
         }
     }
