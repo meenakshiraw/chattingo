@@ -9,11 +9,11 @@
     }
 
     stages {
-        stage('Git Clone') {
+       stage('Checkout') {
             steps {
-                echo 'Cloning repository...'
-                git branch: 'meenakshi', url: 'https://github.com/meenakshiraw/chattingo.git'
-            }
+                // This pulls code from your GitHub repo into Jenkins workspace
+                git branch: 'meenakshi',
+                    url: 'https://github.com/meenakshiraw/chattingo.git'
         }
 
 
