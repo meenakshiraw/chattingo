@@ -14,6 +14,7 @@
           steps {
             checkout scm
           }
+       }
        stage('Checkout') {
             steps {
                 // This pulls code from your GitHub repo into Jenkins workspace
