@@ -15,23 +15,14 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
+
+        stage('Image Build') { 
             steps {
-                echo 'Building Docker images...'
-                script {
-                    // Use branch name or commit hash for dynamic tags
-                    def branchTag = env.BRANCH_NAME.replaceAll('/', '-')
-                    def commitTag = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-
-                    env.BACKEND_IMAGE_TAG = "${DOCKER_HUB_REPO}:backend-${branchTag}-${commitTag}"
-                    env.FRONTEND_IMAGE_TAG = "${DOCKER_HUB_REPO}:frontend-${branchTag}-${commitTag}"
-
-                    sh "docker build -t ${env.BACKEND_IMAGE_TAG} ./backend"
-                    sh "docker build -t ${env.FRONTEND_IMAGE_TAG} ./frontend"
-                }
-            }
+                echo "Building Docker images..."
+                sh 'docker build -t backend-image:latest ./backend'
+                sh 'docker build -t frontend-image:latest ./frontend'
+            }       
         }
-
         stage('Trivy Filesystem Scan') {
             steps {
                 echo 'Scanning source code for vulnerabilities...'
