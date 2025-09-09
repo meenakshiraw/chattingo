@@ -101,7 +101,7 @@
 
       stage('Deploy') {
             steps {
-              sshagent(['jenkins-vps-ssh-key-id']) {
+              sshagent(['vpsuser']) {
                 sh """
                     
                         ssh -o StrictHostKeyChecking=no vpsuser@meenakshirawat.net '
