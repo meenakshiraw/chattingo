@@ -33,20 +33,34 @@ pipeline {
             }     
         }
         stage('Filesystem Scan') {
-            steps {
-                echo "Scanning source code for vulnerabilities..."
-                sh '''
-                # Install Trivy if not installed
-                if ! command -v trivy &> /dev/null; then
-                    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-                fi
+           steps {
+             echo 'Scanning source code for vulnerabilities...'
 
-                # Run source code scan with caching
-    
-               ./bin/trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir /var/jenkins_home/workspace/chatingo/.trivycache .
-
-                '''
+             // Make sure TRIVY_CACHE is set
+            script {
+              env.TRIVY_CACHE = "${env.WORKSPACE}/.trivycache"
             }
+
+            sh '''
+            #!/bin/bash
+            set -e
+
+            # Install Trivy locally if not already installed
+            if [ ! -f "$WORKSPACE/bin/trivy" ]; then
+                 echo "Installing Trivy..."
+                 mkdir -p "$WORKSPACE/bin"
+                 curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b "$WORKSPACE/bin"
+        fi
+
+            # Add Trivy to PATH
+            export PATH=$WORKSPACE/bin:$PATH
+
+            # Verify installation
+            trivy --version
+
+            # Run filesystem scan
+            trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" .
+            '''
         }
 
         stage('Image Scan') {
