@@ -42,8 +42,9 @@ pipeline {
                 fi
 
                 # Run source code scan with caching
-                export PATH=$PATH:$WORKSPACE/bin
-                trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} .
+    
+               ./bin/trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir /var/jenkins_home/workspace/chatingo/.trivycache .
+
                 '''
             }
         }
