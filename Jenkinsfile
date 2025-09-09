@@ -3,21 +3,66 @@ pipeline {
 
     environment {
         TRIVY_CACHE = "${WORKSPACE}/.trivycache"
-        BACKEND_IMAGE = "backend-image:latest"
-        FRONTEND_IMAGE = "frontend-image:latest"
-        GIT_SSH_CREDENTIALS_ID = "github-ssh" // Jenkins SSH credentials ID
-        REPO_URL = "git@github.com:meenakshiraw/chattingo.git"
-        BRANCH = "meenakshi"
+        DOCKER_IMAGE = "backend-image:latest"
     }
 
     stages {
         stage('Git Clone') {
             steps {
-                echo 'Cloning repository using SSH...'
-                git branch: "${BRANCH}", url: "${REPO_URL}", credentialsId: "${GIT_SSH_CREDENTIALS_ID}"
+                echo 'Cloning repository...'
+                git branch: 'meenakshi', url: 'https://github.com/meenakshiraw/chattingo.git'
             }
         }
 
+        stage('Image Build') { 
+            steps {
+                echo "Building Docker images..."
+                sh 'docker build -t backend-image:latest ./backend'
+                sh 'docker build -t frontend-image:latest ./frontend'
+            }       
+        }
 
+        stage('Filesystem Scan') {
+            steps {
+                echo 'Scanning source code for vulnerabilities...'
+                sh '''
+                    mkdir -p "$TRIVY_CACHE"
+
+                    # Run filesystem scan, do not fail pipeline
+                    trivy fs --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" . || true
+                '''
+            }
+            post {
+                always {
+                    echo 'Cleaning Trivy cache...'
+                    sh "rm -rf ${TRIVY_CACHE}"
+                }
+            }
+        }
+
+        stage('Docker Image Scan') {
+            steps {
+                echo 'Scanning Docker image for vulnerabilities...'
+                sh '''
+                    mkdir -p "$TRIVY_CACHE"
+
+                    # Scan Docker image, do not fail pipeline
+                    trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${DOCKER_IMAGE} || true
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished. Cleaning workspace...'
+            deleteDir()
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+        success {
+            echo 'Pipeline completed successfully.'
+        }
     }
 }
