@@ -40,6 +40,11 @@ pipeline {
         }
 
         stage('Docker Image Scan') {
+
+          when {
+            beforeAgent true
+            expression { true } // always run regardless of previous failures
+           }
             steps {
                 echo '🔍 Scanning Docker images for vulnerabilities...'
                 sh """
