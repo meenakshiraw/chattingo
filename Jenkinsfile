@@ -1,6 +1,9 @@
 pipeline {
     agent any
-
+    environment {
+        DOCKER_IMAGE = "backend-image:latest"
+        TRIVY_CACHE = "${WORKSPACE}/.trivycache"
+    }
     stages {
 
 
@@ -27,7 +30,30 @@ pipeline {
                 
                 // Build frontend image
                 sh 'docker build -t frontend-image:latest ./frontend'
-            }       
+            }     
+
+        stage('Filesystem Scan') {
+            steps {
+                echo "Scanning source code for vulnerabilities..."
+                sh '''
+                # Install Trivy if not already installed
+                if ! command -v trivy &> /dev/null; then
+                    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+                fi
+
+                # Run source code scan with caching
+                trivy fs --exit-code 1 --severity HIGH,CRITICAL --cache-dir ${TRIVY_CACHE} .
+                '''
+            }
+                
+        stage('Image Scan') {
+            steps {
+                echo "Scanning Docker image for vulnerabilities..."
+                sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL backend-image:latest'
+            }
+        }
+
+                
         }
     }
 }
