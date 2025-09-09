@@ -5,7 +5,7 @@
         TRIVY_CACHE = "${WORKSPACE}/.trivycache"
         DOCKER_HUB_REPO = "docker_id/chattingo" // Docker Hub repo
         DOCKER_HUB_CREDENTIALS = "docker_id"    // Jenkins credential ID
-        IMAGE_TAG="build-${BUILD_NUMBER}"
+        DOCKER_COMPOSE_FILE = "docker-compose.yaml"
     }
 
     stages {
@@ -77,7 +77,7 @@
                     sh """
                     sed -i 's|chattingo-frontend:.*|chattingo-frontend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
                     sed -i 's|chattingo-backend:.*|chattingo-backend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
-                    cat docker-compose.yml
+                    cat docker-compose.yaml
                     """
 
                     // Build and run containers
