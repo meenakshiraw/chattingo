@@ -80,10 +80,10 @@
                     cat docker-compose.yaml
                     """
                     
-                # Make sure docker-compose is executable
+                //Make sure docker-compose is executable
                     sh "chmod +x /usr/local/bin/docker-compose"
 
-                # Run docker-compose up with build
+                //Run docker-compose up with build
                     sh "/usr/local/bin/docker-compose -f docker-compose.yml up --build -d"
 
                   
