@@ -81,7 +81,8 @@
                     """
 
                     // Build and run containers
-                    sh "docker-compose up --build -d"
+                    sh "docker compose up --build -d"
+
                 
             }
         }
