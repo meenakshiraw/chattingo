@@ -14,10 +14,10 @@ pipeline {
             steps {
                 echo "Building Docker images of backend..."
                 // Build backend image
-                sh './backend/docker build -t backend-image:latest ./backend'
+                sh 'docker build -t backend-image:latest ./backend'
                 
                 // Build frontend image
-                sh './frontend/docker build -t frontend-image:latest ./frontend'
+                sh 'docker build -t frontend-image:latest ./frontend'
             }       
         }
     }
