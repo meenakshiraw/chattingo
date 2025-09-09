@@ -1,27 +1,106 @@
-pipeline {
+ pipeline {
     agent any
-    
+
+    environment {
+        TRIVY_CACHE = "${WORKSPACE}/.trivycache"
+        DOCKER_HUB_REPO = "docker_id/chattingo" // Docker Hub repo
+        DOCKER_HUB_CREDENTIALS = "docker_id"    // Jenkins credential ID
+        DOCKER_COMPOSE_FILE = "docker-compose.yaml"
+    }
+
     stages {
-        stage('Git Clone') { 
-            // Clone repository from GitHub (2 Marks)
+        stage('Git Clone') {
+            steps {
+                echo 'Cloning repository...'
+                git branch: 'meenakshi', url: 'https://github.com/meenakshiraw/chattingo.git'
+            }
         }
+
+
         stage('Image Build') { 
-            // Build Docker images for frontend & backend (2 Marks)
+            steps {
+                echo "Building Docker images..."
+                sh 'docker build -t backend-image:latest ./backend'
+                sh 'docker build -t frontend-image:latest ./frontend'
+            }       
         }
-        stage('Filesystem Scan') { 
-            // Security scan of source code (2 Marks)
+        stage('Trivy Filesystem Scan') {
+            steps {
+                echo 'Scanning source code for vulnerabilities...'
+                sh '''
+                    mkdir -p "$TRIVY_CACHE"
+                    trivy fs --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" . || true
+                '''
+            }
         }
-        stage('Image Scan') { 
-            // Vulnerability scan of Docker images (2 Marks)
+
+        stage('Trivy Docker Image Scan') {
+            steps {
+                echo 'Scanning Docker images for vulnerabilities...'
+                sh """
+                    mkdir -p "$TRIVY_CACHE"
+                    trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${env.BACKEND_IMAGE_TAG} || true
+                    trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${env.FRONTEND_IMAGE_TAG} || true
+                """
+            }
         }
-        stage('Push to Registry') { 
-            // Push images to Docker Hub/Registry (2 Marks)
+
+        stage('Push to Docker Hub') {
+            steps {
+                echo 'Pushing Docker images to Docker Hub...'
+                script {
+                   docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                      // Use the image names from the build stage
+                     sh "docker tag backend-image:latest  meenakshirawat/chattingo:backend-latest"
+                     sh "docker tag frontend-image:latest  meenakshirawat/chattingo:frontend-latest"
+
+                     sh "docker push   meenakshirawat/chattingo:backend-latest"
+                     sh "docker push   meenakshirawat/chattingo:frontend-latest"
+                    
+
+                    
+                    }
+                }
+            }
         }
-        stage('Update Compose') { 
-            // Update docker-compose with new image tags (2 Marks)
+
+
+
+        stage('Build & Deploy with Tagged Images') {
+            steps {
+                script {
+                    // Set tag using Jenkins build number
+                    def IMAGE_TAG = "build-${env.BUILD_NUMBER}"
+                    echo "Using image tag: ${IMAGE_TAG}"
+
+                    // Update docker-compose.yml with new image tag
+                    sh """
+                    sed -i 's|chattingo-frontend:.*|chattingo-frontend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
+                    sed -i 's|chattingo-backend:.*|chattingo-backend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
+                    cat docker-compose.yaml
+                    """
+
+                  // Build and run containers using Docker Compose V2
+                    sh "docker compose build"
+                    sh "docker compose up -d"
+
+                
+            }
         }
-        stage('Deploy') { 
-            // Deploy to Hostinger VPS (5 Marks)
+    }
+
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished. Cleaning workspace...'
+            deleteDir()
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+        success {
+            echo 'Pipeline completed successfully.'
         }
     }
 }
