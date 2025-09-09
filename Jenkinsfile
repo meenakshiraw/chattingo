@@ -5,7 +5,7 @@ pipeline {
         stage('Git Clone') { 
             steps {
                 echo "Cloning repository from GitHub..."
-                git branch: 'meenakshi', url: 'https://github.com/meenakshiraw/chattingo.git'
+                git branch: 'meenakshi', url: 'https://github.com/meenakshiraw/chattingo.git',poll: false
             }
         }
 
