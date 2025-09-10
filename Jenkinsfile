@@ -27,7 +27,9 @@ pipeline {
        }
         stage('Image Build') { 
             steps {
+                script{
                dockerBuild()
+                }
             }       
         }
         stage('Trivy Filesystem Scan') {
