@@ -28,7 +28,7 @@ pipeline {
         stage('Image Build') { 
             steps {
                 script{
-               dockerBuild()
+               helloWorld('Meenakshi')
                 }
             }       
         }
