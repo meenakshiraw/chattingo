@@ -1,6 +1,6 @@
 # 🚀 Chattingo - Mini Hackathon Challenge
 
-A full-stack real-time chat application built with React, Spring Boot, and WebSocket technology. **Your mission**: Containerize this application using Docker and deploy it to Hostinger VPS using Jenkins CI/CD pipeline.
+A full-stack real-time chat application built with React, Spring Boot, and WebSocket technology. Containerize this application using Docker and deploy it to Hostinger VPS using Jenkins CI/CD pipeline.
 
 
 
@@ -34,138 +34,147 @@ A full-stack real-time chat application built with React, Spring Boot, and WebSo
 - **JWT** - Token-based authentication
 - **MySQL** - Database
 
-### DevOps (Your Tasks)
-- **Docker** - Containerization (YOU BUILD)
-- **Docker Compose** - Multi-container orchestration (YOU BUILD)
-- **Jenkins** - CI/CD pipeline (YOU BUILD)
-- **Nginx** - Web server & reverse proxy (YOU BUILD)
 
+---
 
-### **Task 1: Docker Implementation (5 Marks)**
+# 🚀 Project: Containerized Full-Stack Application
 
-You need to create these files from scratch:
+## 📌 Overview
 
-#### **Frontend Dockerfile** (3-stage build)
-- Stage 1: Node.js build environment
-- Stage 2: Build React application  
-- Stage 3: Nginx runtime server
+This project demonstrates a complete containerized setup for a **React frontend**, **Spring Boot backend**, and **MySQL database**, orchestrated using **Docker Compose**, automated with **Jenkins CI/CD pipeline**, and served through **Nginx** as a reverse proxy with HTTPS support.
 
-#### **Backend Dockerfile** (3-stage build)
-- Stage 1: Maven build environment
-- Stage 2: Build Spring Boot application
-- Stage 3: JRE runtime
+The stack includes:
 
-#### **Docker Compose** (Root level)
-Create `docker-compose.yml` to orchestrate all services.
+* **Docker** → Application containerization
+* **Docker Compose** → Multi-container orchestration
+* **Jenkins** → CI/CD pipeline automation
+* **Nginx** → Web server & reverse proxy
 
-**Scoring**: Single Stage (2), Two Stage (4), Multi Stage (5)
+---
 
-### **Task 2: Jenkins CI/CD Pipeline (17 Marks)**
+## 🛠️ Technologies Used
 
-Create a `Jenkinsfile` with these stages:
+* **Frontend** → React (served via Nginx)
+* **Backend** → Spring Boot (Java)
+* **Database** → MySQL (Dockerized)
+* **Containerization** → Docker & Docker Compose
+* **Automation** → Jenkins Pipeline
+* **Web Server** → Nginx (with SSL support)
 
-```groovy
-pipeline {
-    agent any
-    
-    stages {
-        stage('Git Clone') { 
-            // Clone repository from GitHub (2 Marks)
-        }
-        stage('Image Build') { 
-            // Build Docker images for frontend & backend (2 Marks)
-        }
-        stage('Filesystem Scan') { 
-            // Security scan of source code (2 Marks)
-        }
-        stage('Image Scan') { 
-            // Vulnerability scan of Docker images (2 Marks)
-        }
-        stage('Push to Registry') { 
-            // Push images to Docker Hub/Registry (2 Marks)
-        }
-        stage('Update Compose') { 
-            // Update docker-compose with new image tags (2 Marks)
-        }
-        stage('Deploy') { 
-            // Deploy to Hostinger VPS (5 Marks)
-        }
+---
+
+## 📂 Project Structure
+
+```
+.
+├── frontend/                 # React app with Dockerfile (multi-stage build)
+│   └── Dockerfile
+├── backend/                  # Spring Boot app with Dockerfile (multi-stage build)
+│   └── Dockerfile
+├── nginx/                    # Nginx config for reverse proxy & SSL
+│   └── nginx.conf
+├── docker-compose.yml        # Orchestration file
+└── README.md
+```
+
+---
+
+## ⚡ Setup Instructions
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/meenakshiraw/chattingo.git
+cd chattingo
+```
+
+### 2️⃣ Build & Run with Docker Compose
+
+```bash
+docker-compose up --build -d
+```
+
+* Frontend → [http://meenakshirawat.net]
+* Backend → [http://meenakshirawat.9090]
+* Jenkins → [http://meenakshirawat.net:8080]
+* MySQL → [localhost:3306]
+
+### 3️⃣ Access Jenkins
+
+* Open: http://meenakshirawat.net:8080
+* Default admin password (inside container):
+
+```bash
+docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+---
+
+## 🔄 Jenkins CI/CD Pipeline
+
+* **Stage 1**: Checkout code from GitHub
+* **Stage 2**: Build & test backend with Maven
+* **Stage 3**: Build React frontend
+* **Stage 4**: Build & push Docker images to Docker Hub
+* **Stage 5**: Deploy services using Docker Compose
+
+---
+
+## 🌐 Nginx Configuration
+
+* Acts as **reverse proxy** for frontend & backend
+* Supports **SSL/TLS certificates** (self-signed or Certbot)
+* Routes:
+
+  * `/` → React frontend
+  * `/api` → Spring Boot backend
+
+Example snippet from `nginx.conf`:
+
+```nginx
+server {
+    listen 80;
+    server_name meenakshirawat.net www.meenakshirawat.net;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://backend:8080/;
     }
 }
 ```
 
-### Additional Requirements
-- **Jenkins Shared Library**: 3 Marks
-- **Active Engagement**: 2 Marks
-- **Creativity**: 2 Marks
-- **Quality Storytelling**: 10 Marks
-  - README (Compulsory): 3 Marks
-  - Blog (Optional): 2 Marks
-  - Video (Compulsory): 5 Marks
+---
 
-### **Task 3: VPS Deployment**
-- **Hostinger VPS Setup**: Ubuntu 22.04 LTS, 2GB RAM
-- **Domain Configuration**: Setup your domain with DNS
-- **SSL Certificate**: Configure HTTPS with Let's Encrypt
-- **Production Deployment**: Automated deployment via Jenkins
+## 🔒 SSL Setup
 
+* Generate a self-signed SSL certificate:
 
-## 📱 Application Features
-
-### Core Functionality
-- ✅ User authentication (JWT)
-- ✅ Real-time messaging (WebSocket)
-- ✅ Group chat creation
-- ✅ User profile management
-- ✅ Message timestamps
-- ✅ Responsive design
-
-### API Endpoints
-```
-POST   /api/auth/register    - User registration
-POST   /api/auth/login       - User login
-GET    /api/users            - Get users
-POST   /api/chats/create     - Create chat
-GET    /api/chats            - Get user chats
-POST   /api/messages/create  - Send message
-GET    /api/messages/{chatId} - Get chat messages
-WS     /ws                   - WebSocket endpoint
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout nginx/ssl/self.key -out nginx/ssl/self.crt
 ```
 
-## 📊 Project Structure
+* Update `nginx.conf`:
 
-```
-chattingo/
-├── backend/                 # Spring Boot application
-│   ├── src/main/java/
-│   │   └── com/chattingo/
-│   │       ├── Controller/  # REST APIs
-│   │       ├── Service/     # Business logic
-│   │       ├── Model/       # JPA entities
-│   │       └── config/      # Configuration
-│   ├── src/main/resources/
-│   │   └── application.properties
-│   ├── .env                 # Environment variables
-│   └── pom.xml
-├── frontend/               # React application
-│   ├── src/
-│   │   ├── Components/     # React components
-│   │   ├── Redux/          # State management
-│   │   └── config/         # API configuration
-│   ├── .env                # Environment variables
-│   └── package.json
-├── CONTRIBUTING.md         # Detailed setup & deployment guide
-└── README.md              # This file
+```nginx
+ssl_certificate /etc/nginx/ssl/self.crt;
+ssl_certificate_key /etc/nginx/ssl/self.key;
 ```
 
+---
+
+## ✅ Deliverables
+
+* **Docker**: Multi-stage builds for frontend & backend
+* **Docker Compose**: Multi-container orchestration
+* **Jenkins**: Automated CI/CD pipeline
+* **Nginx**: Reverse proxy with SSL
+
+---
 
 
-### **Required Submission Fields**
-1. **Name** - Your full name
-2. **Email ID** - Contact email
-3. **GitHub Repository URL** - Your forked and implemented project
-4. **Video Demo URL** - 3-minute demo video (YouTube/Drive link)
-5. **Live Application URL** - Your deployed application on VPS
-6. **Blog URL** - Technical writeup (Optional but recommended)
-7. **README URL** - Link to your updated README file
 
