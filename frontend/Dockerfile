@@ -24,7 +24,7 @@ COPY --from=build /app/build /usr/share/nginx/html
  COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy SSL certificates
-COPY ssl/ /etc/nginx/ssl/
+#COPY ssl/ /etc/nginx/ssl/
 
 
 # Expose port 80
