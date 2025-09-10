@@ -27,9 +27,7 @@ pipeline {
        }
         stage('Image Build') { 
             steps {
-                script{
-               helloWorld('Meenakshi')
-                }
+              dockerBuild()
             }       
         }
         stage('Trivy Filesystem Scan') {
@@ -44,26 +42,19 @@ pipeline {
 
         stage('Trivy Docker Image Scan') {
             steps {
-                echo 'Scanning Docker images for vulnerabilities...'
-                sh """
-                    mkdir -p "$TRIVY_CACHE"
-                    trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${env.BACKEND_IMAGE_TAG} || true
-                    trivy image --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" ${env.FRONTEND_IMAGE_TAG} || true
-                """
+                 trivyScan('fs')
+            }
+        }
+
+        stage('Trivy Scan - Images') {
+            steps {
+                trivyScan('image')
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                echo 'Pushing Docker images to Docker Hub...'
-                script {
-                   docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
-                      // Use the image names from the build stage
-                     sh "docker tag backend-image:latest  meenakshirawat/chattingo:backend-latest"
-                     sh "docker tag frontend-image:latest  meenakshirawat/chattingo:frontend-latest"
-
-                     sh "docker push   meenakshirawat/chattingo:backend-latest"
-                     sh "docker push   meenakshirawat/chattingo:frontend-latest"
+               dockerPush(DOCKER_HUB_CREDENTIALS, DOCKER_HUB_REPO)
                     
 
                     
@@ -76,25 +67,7 @@ pipeline {
 
         stage('Build & Deploy with Tagged Images on vps') {
             steps {
-                script {
-                    // Set tag using Jenkins build number
-                    def IMAGE_TAG = "build-${env.BUILD_NUMBER}"
-                    echo "Using image tag: ${IMAGE_TAG}"
-
-                    // Update docker-compose.yml with new image tag
-                    sh """
-                    sed -i 's|chattingo-frontend:.*|chattingo-frontend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
-                    sed -i 's|chattingo-backend:.*|chattingo-backend:${IMAGE_TAG}|' ${DOCKER_COMPOSE_FILE}
-                    cat docker-compose.yaml
-                    """
-                    
-                //Make sure docker-compose is executable
-                   // sh "chmod +x /usr/local/bin/docker-compose"
-
-                //Run docker-compose up with build
-                    sh "/usr/local/bin/docker-compose -f docker-compose.yaml up --build -d"
-
-           }
+                 deployApp(DOCKER_COMPOSE_FILE)
         }
     }
 
