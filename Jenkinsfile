@@ -96,7 +96,17 @@
            }
         }
     }
-
+stage('Deploy to VPS') {
+            steps {
+                sshagent(['vps-ssh-id']) {
+                    sh '''
+                      ssh -o StrictHostKeyChecking=no deployuser@meenakshirawat.net "
+                        cd /app && git pull && docker-compose up -d
+                      "
+                    '''
+                }
+            }
+        }
 
    
     }
