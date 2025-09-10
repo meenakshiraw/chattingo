@@ -1,4 +1,5 @@
- pipeline {
+@Library('my-shared-lib') _
+pipeline {
     agent any
 
     environment {
@@ -26,9 +27,7 @@
        }
         stage('Image Build') { 
             steps {
-                echo "Building Docker images..."
-                sh 'docker build -t backend-image:latest ./backend'
-                sh 'docker build -t frontend-image:latest ./frontend'
+               dockerBuild()
             }       
         }
         stage('Trivy Filesystem Scan') {
