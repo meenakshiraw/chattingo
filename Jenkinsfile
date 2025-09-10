@@ -73,7 +73,7 @@
 
 
 
-        stage('Build & Deploy with Tagged Images') {
+        stage('Build & Deploy with Tagged Images on vps') {
             steps {
                 script {
                     // Set tag using Jenkins build number
@@ -96,20 +96,7 @@
            }
         }
     }
-stage('Deploy to VPS') {
-            steps {
-                //sshagent(['vps-ssh-id'])
-             
-               sshagent(credentials: ['vps-ssh-id']){
-                    sh '''
-                      ssh -o StrictHostKeyChecking=no root@72.60.111.168 "
-                       cd /app &&   git pull && docker-compose up -d
-                      
-                      "
-                    '''
-                }
-            }
-        }
+
 
    
     }
