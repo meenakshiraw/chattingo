@@ -1,48 +1,30 @@
-@Library('shared') _
+@Library('my-shared-lib') _
+
 pipeline {
     agent any
 
     environment {
-        TRIVY_CACHE = "${WORKSPACE}/.trivycache"
-        DOCKER_HUB_REPO = "docker_id/chattingo" // Docker Hub repo
-        DOCKER_HUB_CREDENTIALS = "docker_id"    // Jenkins credential ID
+        DOCKER_HUB_REPO = "meenakshirawat/chattingo"
+        DOCKER_HUB_CREDENTIALS = "docker_id"
         DOCKER_COMPOSE_FILE = "docker-compose.yaml"
     }
 
     stages {
-
-       
-       stage('Checkout') {
-
-            
+        stage('Checkout') {
             steps {
-
-                // Option 1: checkout from the repo that triggered the pipeline
                 checkout scm
-                // This pulls code from your GitHub repo into Jenkins workspace
-                git branch: 'meenakshi',
-                    url: 'https://github.com/meenakshiraw/chattingo.git'
-        }
-
-       }
-        stage('Image Build') { 
-            steps {
-              dockerBuild()
-            }       
-        }
-        stage('Trivy Filesystem Scan') {
-            steps {
-                echo 'Scanning source code for vulnerabilities...'
-                sh '''
-                    mkdir -p "$TRIVY_CACHE"
-                    trivy fs --severity HIGH,CRITICAL --cache-dir "$TRIVY_CACHE" . || true
-                '''
             }
         }
 
-        stage('Trivy Docker Image Scan') {
+        stage('Build Images') {
             steps {
-                 trivyScan('fs')
+                dockerBuild()
+            }
+        }
+
+        stage('Trivy Scan - FS') {
+            steps {
+                trivyScan('fs')
             }
         }
 
@@ -54,25 +36,15 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-               dockerPush(DOCKER_HUB_CREDENTIALS, DOCKER_HUB_REPO)
-                    
-
-                    
-                    }
-                }
+                dockerPush(DOCKER_HUB_CREDENTIALS, DOCKER_HUB_REPO)
             }
         }
 
-
-
-        stage('Build & Deploy with Tagged Images on vps') {
+        stage('Deploy on VPS') {
             steps {
-                 deployApp(DOCKER_COMPOSE_FILE)
+                deployApp(DOCKER_COMPOSE_FILE)
+            }
         }
-    }
-
-
-   
     }
 
     post {
