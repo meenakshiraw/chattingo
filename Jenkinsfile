@@ -102,7 +102,7 @@ stage('Deploy to VPS') {
              
                sshagent(credentials: ['vps-ssh-id']){
                     sh '''
-                      ssh -o StrictHostKeyChecking=no deployuser@72.60.111.168 "
+                      ssh -o StrictHostKeyChecking=no root@72.60.111.168 "
                        cd /app &&   git pull && docker-compose up -d
                       
                       "
