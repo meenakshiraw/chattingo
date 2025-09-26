@@ -22,7 +22,7 @@ jobs:
     steps:
       # Stage 1: Git Clone
       - name: Checkout Code
-        uses: actions/checkout@v3 
+        uses: actions/checkout@v4
 
       # Stage 2: Image Build
       - name: Build Frontend Docker Image
@@ -33,7 +33,7 @@ jobs:
 
       # Stage 3: Filesystem Scan (Static Code Analysis)
       - name: Run Code Scan
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
       
 
         with:
