@@ -42,6 +42,7 @@ jobs:
       # 👇 Add build step for Java (Maven example)
       - if: matrix.language == 'java'
         name: Build with Maven
+        working-directory: ./backend
         run: mvn -B clean install -DskipTests
 
       # Stage 4: Image Scan (Trivy for vulnerabilities)
