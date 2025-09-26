@@ -68,19 +68,19 @@ jobs:
         with:
          context: ./frontend
          push: true
-         tags: ${{ secrets.DOCKER_USERNAME }}/chattingo-frontend:latest
+         #tags: ${{ secrets.DOCKER_USERNAME }}/chattingo-frontend:latest
 
-         #tags: meenakshirawat/chattingo-frontend:latest 
+         tags: meenakshirawat/chattingo-frontend:latest 
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
          context: ./backend
          push: true
-         tags: ${{ secrets.DOCKER_USERNAME }}/chattingo-backend:latest
+         #tags: ${{ secrets.DOCKER_USERNAME }}/chattingo-backend:latest
 
 
-         #tags: meenakshirawat/chattingo-backend:latest
+         tags: meenakshirawat/chattingo-backend:latest
 
         
 
