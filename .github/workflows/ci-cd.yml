@@ -108,8 +108,13 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
-           cd /root/chattingo
-           git pull origin meenakshi
-           docker-compose pull
-           docker-compose up -d 
+             cd /root/chattingo
+             git fetch origin
+             git reset --hard origin/meenakshi
+
+             echo "Logging into Docker Hub..."
+             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+             docker-compose pull
+             docker-compose up -d
     
