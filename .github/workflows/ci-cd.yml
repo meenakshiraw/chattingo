@@ -111,6 +111,7 @@ jobs:
              cd /root/chattingo
              git pull origin meenakshi
              docker-compose pull
-             docker-compose up -d
+             #docker-compose up -d
+             docker-compose --env-file .env up -d
 
     
