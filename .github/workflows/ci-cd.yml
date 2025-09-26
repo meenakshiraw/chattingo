@@ -69,6 +69,7 @@ jobs:
          context: ./frontend
          push: true
          tags: ${{ secrets.DOCKER_USERNAME }}/chattingo-frontend:latest
+
          #tags: meenakshirawat/chattingo-frontend:latest 
 
       - name: Build and push Docker image
@@ -77,6 +78,7 @@ jobs:
          context: ./backend
          push: true
          tags: ${{ secrets.DOCKER_USERNAME }}/chattingo-backend:latest
+
 
          #tags: meenakshirawat/chattingo-backend:latest
 
