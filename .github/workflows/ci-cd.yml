@@ -26,10 +26,10 @@ jobs:
 
       # Stage 2: Image Build
       - name: Build Frontend Docker Image
-        run: docker build -t frontend:latest ./frontend
+        run: docker build -t chattingo-frontend:latest ./frontend
 
       - name: Build Backend Docker Image
-        run: docker build -t backend:latest ./backend
+        run: docker build -t chattingo-backend:latest ./backend
 
       # Stage 3: Filesystem Scan (Static Code Analysis)
       - name: Run Code Scan
@@ -69,7 +69,7 @@ jobs:
          context: ./frontend
          push: true
          tags: ${{ secrets.DOCKER_USERNAME }}/myrepo/frontend:latest
-         #tags: meenakshirawat/frontend:latest 
+         #tags: meenakshirawat/chattingo-frontend:latest 
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -78,7 +78,7 @@ jobs:
          push: true
          tags: ${{ secrets.DOCKER_USERNAME }}/myrepo/backend:latest
 
-         #tags: meenakshirawat/backend:latest
+         #tags: meenakshirawat/chattingo-backend:latest
 
         
 
@@ -89,8 +89,8 @@ jobs:
           #sed -i "s|image: myrepo/frontend.*|image: myrepo/frontend:latest|g" docker-compose.yml
           #sed -i "s|image: myrepo/backend.*|image: myrepo/backend:latest|g" docker-compose.yml
 
-          #sed -i "s|image: frontend.*|image: frontend:latest|g" docker-compose.yml
-          #sed -i "s|image: backend.*|image: backend:latest|g" docker-compose.yml
+          #sed -i "s|image: chattingo-frontend.*|image: chattingo-frontend:latest|g" docker-compose.yml
+          #sed -i "s|image: chattingo-backend.*|image: chattingo-backend:latest|g" docker-compose.yml
 
       # Stage 7: Deploy to VPS (via SSH)
       - name: Deploy on VPS 
@@ -100,7 +100,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /path/to/app
+            cd /root/chattimgo
             git pull origin meenakshi
             docker-compose pull
             docker-compose up -d
