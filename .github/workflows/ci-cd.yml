@@ -95,14 +95,18 @@ jobs:
           #sed -i "s|image: chattingo-backend.*|image: chattingo-backend:latest|g" docker-compose.yml
 
       # Stage 7: Deploy to VPS (via SSH)
-      - name: Deploy on VPS 
+     
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: 22
           script: |
-            cd /root/chattingo
-            git pull origin meenakshi
-            docker-compose pull
+           cd /root/chattingo
+           git pull origin meenakshi
+           docker-compose pull
+           docker-compose up -d
+      docker-compose pull
             docker-compose up -d
