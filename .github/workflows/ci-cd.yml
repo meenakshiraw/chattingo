@@ -68,7 +68,7 @@ jobs:
         with:
          context: ./frontend
          push: true
-         tags: ${{ secrets.DOCKER_USERNAME }/myrepo/frontend:latest
+         tags: ${{ secrets.DOCKER_USERNAME }}/myrepo/frontend:latest
          #tags: meenakshirawat/frontend:latest 
 
       - name: Build and push Docker image
