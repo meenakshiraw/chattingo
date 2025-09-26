@@ -17,10 +17,10 @@ jobs:
 
       # Stage 2: Image Build
       - name: Build Frontend Docker Image
-        run: docker build -t myrepo/frontend:latest ./frontend
+        run: docker build -t frontend:latest ./frontend
 
       - name: Build Backend Docker Image
-        run: docker build -t myrepo/backend:latest ./backend
+        run: docker build -t backend:latest ./backend
 
       # Stage 3: Filesystem Scan (Static Code Analysis)
       - name: Run Code Scan
