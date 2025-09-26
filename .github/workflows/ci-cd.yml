@@ -64,10 +64,21 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Frontend Image
-        run: docker push myrepo/frontend:latest
+        uses: docker/build-push-action@v4
+        with:
+         context: ./frontend
+         push: true
+         tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
 
-      - name: Push Backend Image
-        run: docker push myrepo/backend:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+         context: ./backend
+         push: true
+         tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest  
+
+        
+
 
       # Stage 6: Update docker-compose.yml with new tags (example step)
       - name: Update Docker Compose
