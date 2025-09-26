@@ -22,7 +22,7 @@ jobs:
     steps:
       # Stage 1: Git Clone
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 
 
       # Stage 2: Image Build
       - name: Build Frontend Docker Image
