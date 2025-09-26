@@ -49,12 +49,12 @@ jobs:
       - name: Scan Frontend Image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: frontend:latest
+          image-ref: chattingo-frontend:latest
 
       - name: Scan Backend Image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: backend:latest
+          image-ref: chattingo-backend:latest
 
       # Stage 5: Push to Docker Hub
       - name: Login to Docker Hub
