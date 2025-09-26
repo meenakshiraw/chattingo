@@ -76,7 +76,7 @@ jobs:
           sed -i "s|image: myrepo/backend.*|image: myrepo/backend:latest|g" docker-compose.yml
 
       # Stage 7: Deploy to VPS (via SSH)
-      - name: Deploy on VPS
+      - name: Deploy on VPS 
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
