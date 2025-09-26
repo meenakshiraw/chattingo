@@ -49,12 +49,12 @@ jobs:
       - name: Scan Frontend Image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: myrepo/frontend:latest
+          image-ref: frontend:latest
 
       - name: Scan Backend Image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: myrepo/backend:latest
+          image-ref: backend:latest
 
       # Stage 5: Push to Docker Hub
       - name: Login to Docker Hub
@@ -85,8 +85,11 @@ jobs:
       # Stage 6: Update docker-compose.yml with new tags (example step)
       - name: Update Docker Compose
         run: |
-          sed -i "s|image: myrepo/frontend.*|image: myrepo/frontend:latest|g" docker-compose.yml
-          sed -i "s|image: myrepo/backend.*|image: myrepo/backend:latest|g" docker-compose.yml
+          #sed -i "s|image: myrepo/frontend.*|image: myrepo/frontend:latest|g" docker-compose.yml
+          #sed -i "s|image: myrepo/backend.*|image: myrepo/backend:latest|g" docker-compose.yml
+
+          #sed -i "s|image: frontend.*|image: frontend:latest|g" docker-compose.yml
+          #sed -i "s|image: backend.*|image: backend:latest|g" docker-compose.yml
 
       # Stage 7: Deploy to VPS (via SSH)
       - name: Deploy on VPS 
