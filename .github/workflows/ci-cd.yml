@@ -9,6 +9,15 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+       fail-fast: false
+       matrix:
+        language: [ 'java', 'javascript' ]
 
     steps:
       # Stage 1: Git Clone
@@ -25,11 +34,18 @@ jobs:
       # Stage 3: Filesystem Scan (Static Code Analysis)
       - name: Run Code Scan
         uses: github/codeql-action/init@v2
-        with:
-          languages: javascript, java
+      
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+
+        with:
+          languages: ${{ matrix.language }}
+
+      # 👇 Add build step for Java (Maven example)
+      - if: matrix.language == 'java'
+        name: Build with Maven
+        run: mvn -B clean install -DskipTests
 
       # Stage 4: Image Scan (Trivy for vulnerabilities)
       - name: Scan Frontend Image
